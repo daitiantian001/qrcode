@@ -1,0 +1,139 @@
+    <script type="text/javascript" src="./socket.io.js"></script>       
+    <script type="text/javascript" src="./qrcode.js"></script> 
+    <script type="text/javascript" src="./jquery-3.2.1.min.js"></script>          
+    <style >
+        body,html{
+            margin: 0;
+            padding: 0;
+        }
+            .container{
+                position: relative;
+                background-color: #f2f2f2;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+            }
+            .logic-container{
+                position: relative;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+            }
+            .qrcode{
+
+            }
+            .model{
+                background-color: rgba(255, 255, 255, .6);
+                position: absolute;
+                top: 0;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                z-index: 10;
+                text-align: center;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                
+            }
+            .avatar{
+                width: 80px;
+                height: 80px;
+                border-radius: 40px;
+            }
+            .tips{
+                height: 20px;;
+                text-align: center;
+            }
+
+            </style>
+  
+<div class="container">
+    <!-- <button onclick="getCode()">getCode</button> -->
+    <div class="logic-container">
+       <div id="qrcode" class="qrcode">
+
+       </div>
+       <div class="model" id="model" hidden>
+            
+       </div>
+       
+    </div>
+    
+</div>
+    <script type="text/javascript">  
+    window.onload = getCode();
+    $('#model').hide();
+    var socket=null;
+    function getCode(){
+        var appId = getQueryVariable("appId");
+        var redirectUri = getQueryVariable("redirectUri");
+        var responseType = getQueryVariable("responseType");
+        var scope = getQueryVariable("scope");
+        var state = getQueryVariable("state");
+        var width = getQueryVariable("width");
+        var height = getQueryVariable("height");
+        // var callBack = eval(getQueryVariable("callback"));
+        console.log(appId);
+        console.log(redirectUri);
+        console.log(responseType);
+        $.ajax(
+            {
+                url:'http://192.168.1.28:8301/plat/open/show',
+                type:'post',
+                data: `{
+                        "appId": "${appId}",
+                        "redirectUri": "${redirectUri}",
+                        "responseType": "${responseType}",
+                        "scope": "${scope}",
+                        "state": "${state}"
+                }`,
+                success:(data)=>{
+                    console.log(data);
+                    document.getElementById('qrcode').innerHTML = '';
+                    // new QRCode(document.getElementById('qrcode'),data.data);
+                    var qrCode = new QRCode('qrcode',{
+                        text:data.data,
+                        width: width,
+                        height: height,
+                        colorDark : '#000000',
+                        colorLight : '#ffffff',
+                        correctLevel : QRCode.CorrectLevel.H
+                    })
+                    socket = io.connect('http://192.168.1.28:8882?clientId='+data.data);
+                    socket.on('msg',(data)=>{
+                        console.log(data);
+                        // callBack(data);
+                        $('#model').html(`<img class="avatar" src="${data}"><div class="tips" id="tips" >扫码成功 请在手机端点击确认以登录;</div>`);
+                        $('#model').show();
+                        document.cookie="name="+111;
+                    });
+                    socket.on('finish',(data)=>{
+                        console.log(data);
+                        parent.location.href = data.redirectUrl+data.code
+                    });
+                    socket.on('success',()=>{
+
+                    });
+                },
+                contentType: "application/json",
+            }
+        )
+    }
+
+
+        function getQueryVariable(variable)
+            {
+                var query = window.location.search.substring(1);
+                var vars = query.split("&");
+                for (var i=0;i<vars.length;i++) {
+                        var pair = vars[i].split("=");
+                        if(pair[0] == variable){return pair[1];}
+                }
+                return(false);
+            }
+
+    </script>  

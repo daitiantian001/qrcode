@@ -1,0 +1,100 @@
+server:
+  port: 8301
+eureka:
+  client:
+    service-url:
+      #��������
+      defaultZone: http://ddbes:ddbes666@ddbes:8881/eureka/,http://ddbes:ddbes666@ddbes:8882/eureka/
+spring:
+  application:
+    name: ddbes-qrcode
+#redis ����
+  redis:
+    host: 123.58.251.1
+    port: 6379
+    password: joinu666
+    pool:
+      # ���ӳ������������ʹ�ø�ֵ��ʾû�����ƣ�
+      max-active: 100
+      # ���ӳ���������ȴ�ʱ�䣨ʹ�ø�ֵ��ʾû�����ƣ�
+      max-wait: 1000
+      # ���ӳ��е�����������
+      max-idle: 8
+      # ���ӳ��е���С��������
+      min-idle: 3
+    database: 1
+# JDBC����
+  datasource:
+    druid:
+      url: jdbc:mysql://123.58.251.1:3306/hiteamddbes
+      driver-class-name: com.mysql.jdbc.Driver
+      username: ddbes_dev
+      password: Joinu_666
+# Druid ���ӳ�����
+      initial-size: 5
+      max-active: 30
+      min-idle: 5
+      max-wait: 60000
+      pool-prepared-statements: false
+      max-pool-prepared-statement-per-connection-size: -1
+      validation-query: select 'x'
+      validation-query-timeout: 5
+      test-on-borrow: true
+      test-on-return: false
+      test-while-idle: true
+swagger:
+  enabled: true
+  docket:
+    cms�ӿ��ĵ�:
+      title: ɨ��ӿ��ĵ�
+      base-package: com.ddbes.qrcode.controller
+      description: ������
+      version: 1.1.0.RELEASE
+  global-operation-parameters:
+  - name: accessToken
+    description: ��¼token
+    modelRef: String
+    parameterType: header
+    required: false
+########################��־����######################
+logging:
+  level:
+    com.ddbes.qrcode: debug
+######################## ͨ��Mapper #########################
+mybatis:
+  mapper-locations: classpath:mapper/*.xml
+  type-aliases-package: com.ddbes.qrcode.entity
+mapper:
+  mappers: com.ddbes.qrcode.dao.MyMapper
+  not-empty: false
+  identity: MYSQL
+conf:
+  jwt:
+    secret: Nnkxe3G4koJwgdU9V97RkFLrGqptw
+    expire: 365
+  http:
+    #���������
+    maxTotal: 100
+    #������
+    defaultMaxPerRoute:  20
+    #�������ӵ��ʱ��
+    connectTimeout: 1000
+    #�����ӳ��л�ȡ�����ӵ��ʱ��
+    connectionRequestTimeout: 500
+    #���ݴ�����ʱ��
+    socketTimeout: 100000000
+    #�ύ����ǰ���������Ƿ����
+    staleConnectionCheckEnabled: true
+  nio:
+    server:
+      host: 192.168.1.28
+      port: 8882
+  third:
+    host: ddbes
+    port: 8080
+  self:
+    host: 192.168.1.28
+    port: 8301
+#    old:
+#      host: 192.168.1.28
+#      port: 8080
